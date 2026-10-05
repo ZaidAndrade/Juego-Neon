@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#03030a">
+    <title>NEON STICK: CYBER ARENA</title>
+    <meta name="description" content="Juego de acción y combate Cyberpunk Stickman en 2D con efectos neón, múltiples armas y combates contra jefes en 8 zonas adaptado para PC y Celular.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- Lienzo Principal del Juego -->
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Capa de Interfaz en Partida (HUD) -->
+        <div id="hud" class="hidden">
+            <div class="hud-top">
+                <div class="hud-stats">
+                    <!-- Barra de Vida -->
+                    <div class="bar-container">
+                        <div id="hp-bar" class="bar-fill hp-fill"></div>
+                        <div id="hp-text" class="bar-text">❤️ 100 / 100</div>
+                    </div>
+                    <!-- Barra de Energía para Habilidades Especiales -->
+                    <div class="bar-container">
+                        <div id="energy-bar" class="bar-fill energy-fill" style="width: 0%;"></div>
+                        <div id="energy-text" class="bar-text">⚡ ENERGÍA: 0 / 100</div>
+                    </div>
+                </div>
+
+                <div class="hud-center">
+                    <div id="hud-zone" class="zone-badge">CYBER CITY</div>
+                    <div id="hud-wave" class="wave-badge">OLEADA 1 / 5</div>
+                    <div id="hud-music" class="hud-music-badge">🎵 I'M STILL STANDING</div>
+                </div>
+
+                <div class="hud-right">
+                    <div id="hud-coins" class="coins-display">🪙 0</div>
+                    <div class="hud-buttons-row">
+                        <button id="btn-fullscreen-hud" class="hud-btn" title="Pantalla Completa" aria-label="Pantalla Completa">⛶</button>
+                        <button id="btn-sound-toggle" class="hud-btn" title="Alternar Sonido y Música" aria-label="Sonido">🔊</button>
+                        <button id="btn-pause-hud" class="hud-btn" title="Pausar Partida" aria-label="Pausa">⏸</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contador Dinámico de Combo -->
+            <div id="combo-display" class="combo-counter">COMBO x2</div>
+
+            <!-- Controles Táctiles para Dispositivos Móviles y Tablets -->
+            <div id="touch-controls">
+                <!-- Zona Izquierda: Movimiento y Salto -->
+                <div class="touch-group touch-group-left">
+                    <div class="touch-dpad-horizontal">
+                        <button id="btn-touch-left" class="touch-btn touch-btn-nav" aria-label="Mover a la Izquierda">
+                            <span class="touch-icon">◀</span>
+                        </button>
+                        <button id="btn-touch-right" class="touch-btn touch-btn-nav" aria-label="Mover a la Derecha">
+                            <span class="touch-icon">▶</span>
+                        </button>
+                    </div>
+                    <button id="btn-touch-jump" class="touch-btn touch-btn-jump" aria-label="Saltar">
+                        <span class="touch-icon">▲</span>
+                        <span class="touch-text">SALTO</span>
+                    </button>
+                </div>
+
+                <!-- Zona Derecha: Combate y Acciones -->
+                <div class="touch-group touch-group-right">
+                    <button id="btn-touch-jump-alt" class="touch-btn touch-btn-jump-alt" aria-label="Salto Rápido">
+                        <span class="touch-icon">▲</span>
+                    </button>
+                    <button id="btn-touch-light" class="touch-btn touch-btn-action touch-btn-light" aria-label="Ataque Rápido">
+                        <span class="touch-icon">⚔️</span>
+                        <span class="touch-text">RÁPIDO</span>
+                    </button>
+                    <button id="btn-touch-heavy" class="touch-btn touch-btn-action touch-btn-heavy" aria-label="Ataque Pesado">
+                        <span class="touch-icon">💥</span>
+                        <span class="touch-text">PESADO</span>
+                    </button>
+                    <button id="btn-touch-special" class="touch-btn touch-btn-action touch-btn-special" aria-label="Ataque Especial">
+                        <span class="touch-icon">⚡</span>
+                        <span class="touch-text">ESPECIAL</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA: MENÚ PRINCIPAL -->
+        <div id="menu-overlay" class="overlay">
+            <h1 class="neon-title">NEON STICK</h1>
+            <div class="neon-subtitle">CYBER ARENA</div>
+            <div class="btn-container">
+                <button id="btn-play" class="btn">JUGAR</button>
+                <button id="btn-shop" class="btn">TIENDA / ARMAS</button>
+                <button id="btn-controls" class="btn">CONTROLES</button>
+                <button id="btn-progress" class="btn">PROGRESO</button>
+                <button id="btn-fullscreen-menu" class="btn btn-purple">⛶ PANTALLA COMPLETA</button>
+                <button id="btn-reset" class="btn btn-magenta">REINICIAR PROGRESO</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA: MENÚ DE PAUSA -->
+        <div id="pause-overlay" class="overlay hidden">
+            <h2 class="neon-title" style="font-size: 2.6rem;">PAUSADO</h2>
+            <div class="btn-container" style="margin-top: 24px;">
+                <button id="btn-resume" class="btn">CONTINUAR</button>
+                <button id="btn-pause-shop" class="btn">TIENDA DE ARMAS</button>
+                <button id="btn-quit" class="btn btn-magenta">SALIR AL MENÚ</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA: TIENDA / ARMERÍA NEÓN -->
+        <div id="shop-overlay" class="overlay hidden">
+            <div class="panel">
+                <div class="panel-title">NEON ARMORY</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div id="shop-coins" class="coins-display">🪙 0</div>
+                    <div id="shop-msg" style="color: var(--neon-magenta); font-size:0.95rem; font-weight:bold; font-family: var(--font-heading);"></div>
+                </div>
+                <div id="shop-container" class="shop-grid">
+                    <!-- Tarjetas dinámicas de armas inyectadas por JS -->
+                </div>
+                <button id="btn-close-shop" class="btn" style="margin-top: 14px;">VOLVER</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA: GUÍA DE CONTROLES -->
+        <div id="controls-overlay" class="overlay hidden">
+            <div class="panel">
+                <div class="panel-title">GUÍA DE CONTROLES</div>
+                <div style="font-size: 1.02rem; line-height: 1.8; color: #e0e0e0;">
+                    <div style="margin-bottom: 12px;">
+                        <h4 style="color: var(--neon-cyan); font-family: var(--font-heading); margin-bottom: 6px;">⌨️ CONTROLES PC / TECLADO:</h4>
+                        <p><strong style="color: var(--neon-cyan);">[A] / [D] / [Flechas ← / →]:</strong> Moverse</p>
+                        <p><strong style="color: var(--neon-cyan);">[W] / [Flecha ↑] / [Espacio]:</strong> Saltar</p>
+                        <p><strong style="color: var(--neon-cyan);">[J]:</strong> Ataque Rápido</p>
+                        <p><strong style="color: var(--neon-cyan);">[K]:</strong> Ataque Pesado</p>
+                        <p><strong style="color: var(--neon-pink);">[L]:</strong> Ataque Especial (Requiere 100⚡ de Energía)</p>
+                        <p><strong style="color: var(--neon-yellow);">[P] / [Escape]:</strong> Pausa</p>
+                    </div>
+                    <hr style="border-color: rgba(0,243,255,0.25); margin: 12px 0;">
+                    <div>
+                        <h4 style="color: var(--neon-magenta); font-family: var(--font-heading); margin-bottom: 6px;">📱 CONTROLES MÓVIL / CELULAR:</h4>
+                        <p><strong style="color: var(--neon-cyan);">[◀] / [▶]:</strong> Desplazarse (puedes mantener y deslizar el dedo fluidamente)</p>
+                        <p><strong style="color: var(--neon-cyan);">[▲ SALTO]:</strong> Saltar sobre plataformas y enemigos (en mano izquierda y derecha)</p>
+                        <p><strong style="color: var(--neon-cyan);">[⚔️ RÁPIDO]:</strong> Golpe ágil de plasma</p>
+                        <p><strong style="color: var(--neon-yellow);">[💥 PESADO]:</strong> Golpe contundente de alto daño</p>
+                        <p><strong style="color: var(--neon-pink);">[⚡ ESPECIAL]:</strong> Habilidad definitiva (parpadea al alcanzar 100⚡)</p>
+                        <p><strong style="color: var(--neon-green);">[⛶ COMPLETA]:</strong> Expande el juego a pantalla completa sin barras del navegador</p>
+                    </div>
+                </div>
+                <button id="btn-close-controls" class="btn" style="margin-top: 14px;">VOLVER</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA: ESTADÍSTICAS Y PROGRESO -->
+        <div id="progress-overlay" class="overlay hidden">
+            <div class="panel">
+                <div class="panel-title">ESTADÍSTICAS Y PROGRESO</div>
+                <div id="progress-stats">
+                    <!-- Rellenado dinámicamente -->
+                </div>
+                <button id="btn-close-progress" class="btn" style="margin-top: 14px;">VOLVER</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA: GAME OVER -->
+        <div id="gameover-overlay" class="overlay hidden">
+            <div class="neon-title" style="color: var(--neon-magenta); text-shadow: 0 0 25px var(--neon-magenta);">GAME OVER</div>
+            <div id="gameover-stats">
+                <!-- Rellenado dinámicamente -->
+            </div>
+            <div class="btn-container">
+                <button id="btn-retry" class="btn">REINTENTAR</button>
+                <button id="btn-gameover-menu" class="btn btn-magenta">MENÚ PRINCIPAL</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA: VICTORIA ABSOLUTA -->
+        <div id="victory-overlay" class="overlay hidden">
+            <div class="neon-title" style="color: var(--neon-green); text-shadow: 0 0 25px var(--neon-green); font-size: 2.8rem;">VICTORIA ABSOLUTA</div>
+            <div class="neon-subtitle" style="color: var(--neon-cyan);">¡HAS CONQUISTADO LAS 8 ZONAS Y VENCIDO A TODOS LOS JEFES!</div>
+            <div id="victory-stats">
+                <!-- Rellenado dinámicamente -->
+            </div>
+            <div class="btn-container">
+                <button id="btn-victory-menu" class="btn">CONTINUAR AL MENÚ</button>
+            </div>
+        </div>
+
+        <!-- OVERLAY: SUGERENCIA DE ROTACIÓN PARA CELULARES -->
+        <div id="orientation-overlay" class="overlay hidden">
+            <div class="orientation-card">
+                <div class="phone-rotate-anim">
+                    <div class="phone-icon">
+                        <div class="phone-screen-glare"></div>
+                    </div>
+                </div>
+                <div class="orientation-title">GIRA TU PANTALLA</div>
+                <div class="orientation-text">
+                    Para la mejor experiencia de combate Cyberpunk stickman y visibilidad completa de la arena, gira tu dispositivo a <strong>modo horizontal (Landscape)</strong>.
+                </div>
+                <div class="orientation-actions">
+                    <button id="btn-orientation-fullscreen" class="btn btn-green">⛶ PANTALLA COMPLETA</button>
+                    <button id="btn-orientation-continue" class="btn">CONTINUAR EN VERTICAL</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audio de fondo: Elton John - I'm Still Standing -->
+        <audio id="bg-music" loop preload="auto" src="music/still-standing.mp3">
+            <source src="music/still-standing.mp3" type="audio/mpeg">
+            <source src="Elton John - I'm Still Standing (Lyrics).mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- Scripts Modulares del Juego -->
+    <script src="js/audio.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/game.js"></script>
+</body>
+
+</html>
